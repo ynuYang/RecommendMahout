@@ -17,9 +17,6 @@ import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
 import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 
-import pku.edu.step5.step5_matrixUseHDFSmap;
-import pku.edu.step5.step5_matrixUseHDFSreduce;
-
 public class step6 {
 	
 	public static class step6_matrixUseHDFSmap extends Mapper<Object, Text, Text, Text>{
@@ -82,6 +79,7 @@ public class step6 {
 	    job.setReducerClass(step6_matrixUseHDFSreduce.class);
 	    job.setOutputKeyClass(Text.class);
 	    job.setOutputValueClass(Text.class);
+	    job.setNumReduceTasks(20);
 	   // FileInputFormat.addInputPath(job, new Path("hdfs://master:9000/step_out_2"));
 	    FileInputFormat.addInputPath(job, new Path("hdfs://master:9000/step_out_5"));
 	    FileOutputFormat.setOutputPath(job, new Path("hdfs://master:9000/result"));

@@ -6,6 +6,7 @@ import org.apache.hadoop.classification.InterfaceAudience.Public;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.IntWritable;
+import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.jobcontrol.JobControl;
 import org.apache.hadoop.mapreduce.InputSplit;
@@ -30,6 +31,11 @@ import pku.edu.step5.step5_matrixUseHDFSmap;
 import pku.edu.step5.step5_matrixUseHDFSreduce;
 import pku.edu.step6.step6_matrixUseHDFSmap;
 import pku.edu.step6.step6_matrixUseHDFSreduce;
+import pku.edu.step7.FirstPartitioner;
+import pku.edu.step7.KeyComparator;
+import pku.edu.step7.MyPairWritable;
+import pku.edu.step7.step7_map;
+import pku.edu.step7.step7_reduce;
 
 public class recommendMain {
 	/**
@@ -60,6 +66,9 @@ public class recommendMain {
 	    
 	    String input_6=output_5;
 	    String output_6=HDFS+"/step_out_6";
+	    
+	    String input_7=output_6;
+	    String output_7=HDFS+"/step_out_7";
 
 	    
 	   	//work 1
@@ -155,6 +164,26 @@ public class recommendMain {
 	    ctrljob6.addDependingJob(ctrljob5);
 	    
 	    
+	    
+	    //work6
+
+	    Job job_step7 =new Job(conf, "step7");
+
+	    job_step7.setJarByClass(step7.class);
+		
+	    job_step7.setMapperClass(step7_map.class);
+	    job_step7.setReducerClass(step7_reduce.class);
+		
+	    job_step7.setPartitionerClass(FirstPartitioner.class);
+	    job_step7.setSortComparatorClass(KeyComparator.class);		
+	    job_step7.setOutputKeyClass(MyPairWritable.class);
+	    job_step7.setOutputValueClass(NullWritable.class);
+	    FileInputFormat.addInputPath(job_step6, new Path(input_7));
+	    FileOutputFormat.setOutputPath(job_step6, new Path(output_7));
+	    ControlledJob ctrljob7=new  ControlledJob(conf); 
+	    ctrljob7.setJob(job_step7);
+	    ctrljob7.addDependingJob(ctrljob6);
+	    
 
 	    JobControl jobCtrl=new JobControl("myctrl"); 
 
@@ -163,6 +192,7 @@ public class recommendMain {
 	    jobCtrl.addJob(ctrljob3);
 	    jobCtrl.addJob(ctrljob5);  
 	    jobCtrl.addJob(ctrljob6);
+	    jobCtrl.addJob(ctrljob7);
 	    Thread  t=new Thread(jobCtrl); 
 	    t.start(); 
 

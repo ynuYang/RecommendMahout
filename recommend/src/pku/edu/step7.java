@@ -1,4 +1,4 @@
-package secondarySort;
+package pku.edu;
 
 import java.io.DataInput;
 import java.io.DataOutput;
@@ -24,7 +24,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
-public class secondarySort {
+public class step7 {
 	public static class MyPairWritable implements WritableComparable<MyPairWritable>
 	{
 		IntWritable first;
@@ -167,7 +167,7 @@ public class secondarySort {
 	}
 	
 
-	public static class Map extends Mapper<LongWritable,Text,MyPairWritable,NullWritable>
+	public static class step7_map extends Mapper<LongWritable,Text,MyPairWritable,NullWritable>
 	{
 		MyPairWritable intkey=new MyPairWritable();
 		
@@ -209,7 +209,7 @@ public class secondarySort {
 		}
 	}
 	
-	public static class Reduce extends Reducer<MyPairWritable,NullWritable,MyPairWritable,NullWritable>
+	public static class step7_reduce extends Reducer<MyPairWritable,NullWritable,MyPairWritable,NullWritable>
 	{
 		//Text left=new Text();
 		//Text SEPARATOR=new Text("===================================");
@@ -226,26 +226,14 @@ public class secondarySort {
 	{
 		Configuration conf=new Configuration();
 		String[] otherArgs=new GenericOptionsParser(conf,args).getRemainingArgs();
-		if(otherArgs.length<2)
-		{
-			System.err.println("Usage:secondarySort <in> [<in>...]<out>");
-			System.exit(2);
-		}
 		Job job=new Job(conf,"secondarySort");
-		job.setJarByClass(secondarySort.class);
+		job.setJarByClass(step7.class);
 		
-		job.setMapperClass(Map.class);
-		job.setReducerClass(Reduce.class);
+		job.setMapperClass(step7_map.class);
+		job.setReducerClass(step7_reduce.class);
 		
 		job.setPartitionerClass(FirstPartitioner.class);
-		job.setSortComparatorClass(KeyComparator.class);
-		//job.setGroupingComparatorClass(GroupingComparator.class);
-		
-		//job.setMapOutputKeyClass(MyPairWritable.class);
-		//job.setMapOutputValueClass(NullWritable.class);
-		
-		//job.setNumReduceTasks(4);
-		
+		job.setSortComparatorClass(KeyComparator.class);		
 		job.setOutputKeyClass(MyPairWritable.class);
 		job.setOutputValueClass(NullWritable.class);
 		
@@ -257,4 +245,5 @@ public class secondarySort {
 		
 		System.exit(job.waitForCompletion(true)?0:1);
 	}
+
 }
