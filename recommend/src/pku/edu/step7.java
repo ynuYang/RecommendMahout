@@ -14,11 +14,13 @@ import org.apache.hadoop.io.NullWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.io.WritableComparable;
 import org.apache.hadoop.io.WritableComparator;
+import org.apache.hadoop.mapreduce.InputSplit;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.mapreduce.Mapper;
 import org.apache.hadoop.mapreduce.Reducer;
 import org.apache.hadoop.mapreduce.Partitioner;
 import org.apache.hadoop.mapreduce.lib.input.FileInputFormat;
+import org.apache.hadoop.mapreduce.lib.input.FileSplit;
 import org.apache.hadoop.mapreduce.lib.input.TextInputFormat;
 import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.mapreduce.lib.output.TextOutputFormat;
@@ -173,6 +175,9 @@ public class step7 {
 		
 		protected void map(LongWritable key,Text value,Context context)throws IOException,InterruptedException
 		{
+			InputSplit intputSplit=context.getInputSplit();
+			String name=((FileSplit)intputSplit).getPath().getName().toString();
+			if(name.contains("part")){
 			String[] line=value.toString().split("\t");
 	
 			int intone=Integer.parseInt(line[0]);
@@ -205,7 +210,7 @@ public class step7 {
 			intkey.set(one,two,three);
 			System.out.println(intkey);
 			context.write(intkey, NullWritable.get());
-			
+			}
 		}
 	}
 	

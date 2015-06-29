@@ -64,7 +64,7 @@ public class recommendMain {
 	    String input_5_2=output_3;
 	    String output_5=HDFS+"/step_out_5";
 	    
-	    String input_6=output_5;
+	    String input_6=HDFS+"/step_out_5";
 	    String output_6=HDFS+"/step_out_6";
 	    
 	    String input_7=output_6;
@@ -122,26 +122,46 @@ public class recommendMain {
 	    ctrljob3.addDependingJob(ctrljob2);
 
 
+	    //work4
+	    Job job_step4 =new Job(conf, "step4");
+
+	    job_step4.setJarByClass(step5.class);
+	    
+	    job_step4.setMapperClass(step5_matrixUseHDFSmap.class);
+	    job_step4.setReducerClass(step5_matrixUseHDFSreduce.class);
+	    
+	    job_step4.setOutputKeyClass(Text.class);
+	    job_step4.setOutputValueClass(Text.class);
+	    job_step4.setNumReduceTasks(10);
+	    FileInputFormat.addInputPath(job_step4, new Path(input_5_1));
+	    FileInputFormat.addInputPath(job_step4, new Path(input_5_2));
+	    FileOutputFormat.setOutputPath(job_step4, new Path(output_5));
+	    ControlledJob ctrljob4=new  ControlledJob(conf); 
+	    ctrljob4.setJob(job_step4);
+	    ctrljob4.addDependingJob(ctrljob3);
+	    
+	    
+	    
+	    
+	    
+	    
 	    //work5
+
 	    Job job_step5 =new Job(conf, "step5");
 
-	    job_step5.setJarByClass(step5.class);
+	    job_step5.setJarByClass(step6.class);
 	    
-	    job_step5.setMapperClass(step5_matrixUseHDFSmap.class);
-	    job_step5.setReducerClass(step5_matrixUseHDFSreduce.class);
+	    job_step5.setMapperClass(step6_matrixUseHDFSmap.class);
+	    job_step5.setReducerClass(step6_matrixUseHDFSreduce.class);
 	    
 	    job_step5.setOutputKeyClass(Text.class);
 	    job_step5.setOutputValueClass(Text.class);
-	    job_step5.setNumReduceTasks(10);
-	    FileInputFormat.addInputPath(job_step5, new Path(input_5_1));
-	    FileInputFormat.addInputPath(job_step5, new Path(input_5_2));
-	    FileOutputFormat.setOutputPath(job_step5, new Path(output_5));
+	    job_step5.setNumReduceTasks(5);
+	    FileInputFormat.addInputPath(job_step5, new Path(input_6));
+	    FileOutputFormat.setOutputPath(job_step5, new Path(output_6));
 	    ControlledJob ctrljob5=new  ControlledJob(conf); 
 	    ctrljob5.setJob(job_step5);
-	    ctrljob5.addDependingJob(ctrljob3);
-	    
-	    
-	    
+	    ctrljob5.addDependingJob(ctrljob4);
 	    
 	    
 	    
@@ -149,40 +169,20 @@ public class recommendMain {
 
 	    Job job_step6 =new Job(conf, "step6");
 
-	    job_step6.setJarByClass(step6.class);
-	    
-	    job_step6.setMapperClass(step6_matrixUseHDFSmap.class);
-	    job_step6.setReducerClass(step6_matrixUseHDFSreduce.class);
-	    
-	    job_step6.setOutputKeyClass(Text.class);
-	    job_step6.setOutputValueClass(Text.class);
-	    job_step6.setNumReduceTasks(5);
-	    FileInputFormat.addInputPath(job_step6, new Path(input_6));
-	    FileOutputFormat.setOutputPath(job_step6, new Path(output_6));
+	    job_step6.setJarByClass(step7.class);
+		
+	    job_step6.setMapperClass(step7_map.class);
+	    job_step6.setReducerClass(step7_reduce.class);
+		
+	    job_step6.setPartitionerClass(FirstPartitioner.class);
+	    job_step6.setSortComparatorClass(KeyComparator.class);		
+	    job_step6.setOutputKeyClass(MyPairWritable.class);
+	    job_step6.setOutputValueClass(NullWritable.class);
+	    FileInputFormat.addInputPath(job_step6, new Path(input_7));
+	    FileOutputFormat.setOutputPath(job_step6, new Path(output_7));
 	    ControlledJob ctrljob6=new  ControlledJob(conf); 
 	    ctrljob6.setJob(job_step6);
 	    ctrljob6.addDependingJob(ctrljob5);
-	    
-	    
-	    
-	    //work6
-
-	    Job job_step7 =new Job(conf, "step7");
-
-	    job_step7.setJarByClass(step7.class);
-		
-	    job_step7.setMapperClass(step7_map.class);
-	    job_step7.setReducerClass(step7_reduce.class);
-		
-	    job_step7.setPartitionerClass(FirstPartitioner.class);
-	    job_step7.setSortComparatorClass(KeyComparator.class);		
-	    job_step7.setOutputKeyClass(MyPairWritable.class);
-	    job_step7.setOutputValueClass(NullWritable.class);
-	    FileInputFormat.addInputPath(job_step6, new Path(input_7));
-	    FileOutputFormat.setOutputPath(job_step6, new Path(output_7));
-	    ControlledJob ctrljob7=new  ControlledJob(conf); 
-	    ctrljob7.setJob(job_step7);
-	    ctrljob7.addDependingJob(ctrljob6);
 	    
 
 	    JobControl jobCtrl=new JobControl("myctrl"); 
@@ -190,9 +190,9 @@ public class recommendMain {
 	    jobCtrl.addJob(ctrljob1); 
 	    jobCtrl.addJob(ctrljob2);
 	    jobCtrl.addJob(ctrljob3);
-	    jobCtrl.addJob(ctrljob5);  
+	    jobCtrl.addJob(ctrljob4);  
+	    jobCtrl.addJob(ctrljob5);
 	    jobCtrl.addJob(ctrljob6);
-	    jobCtrl.addJob(ctrljob7);
 	    Thread  t=new Thread(jobCtrl); 
 	    t.start(); 
 

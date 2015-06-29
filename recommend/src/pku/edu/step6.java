@@ -24,11 +24,17 @@ public class step6 {
 		@Override
 		protected void map(Object key, Text value, Context context)
 				throws IOException, InterruptedException {
-			// TODO Auto-generated method stub
+			InputSplit intputSplit=context.getInputSplit();
+			String name=((FileSplit)intputSplit).getPath().getParent().toString();
+			String fileString=((FileSplit)intputSplit).getPath().getName().toString();
+			if(name.contains("step_out_5")){
+				if(fileString.contains("part")){
 			String[] valuesplit= value.toString().split("\t");
 			Text k = new Text(valuesplit[0]);
             Text v = new Text(valuesplit[1]);
             context.write(k, v);
+				}
+			}
 		}
 
 		
