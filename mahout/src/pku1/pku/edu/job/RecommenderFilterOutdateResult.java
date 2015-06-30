@@ -9,6 +9,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.mahout.cf.taste.common.TasteException;
@@ -26,17 +27,16 @@ public class RecommenderFilterOutdateResult {
     public static void main(String[] args) throws TasteException, IOException {
         String file = "datafile/job/pv.csv";
         DataModel dataModel = RecommendFactory.buildDataModelNoPref(file);
-        RecommenderBuilder rb1 = RecommenderEvaluator.userCityBlock(dataModel);
-        RecommenderBuilder rb2 = RecommenderEvaluator.itemLoglikelihood(dataModel);
-
-        LongPrimitiveIterator iter = dataModel.getUserIDs();
-        while (iter.hasNext()) {
-            long uid = iter.nextLong();
-            System.out.print("userCityBlock    =>");
-            filterOutdate(uid, rb1, dataModel);
-            System.out.print("itemLoglikelihood=>");
-            filterOutdate(uid, rb2, dataModel);
-        }
+        Map<String, RecommenderBuilder> map=RecommenderEvaluator.getBest();
+        for (String string : map.keySet()) {
+			System.out.println(string);
+		}
+//            long uid = iter.nextLong();
+//            System.out.print("userCityBlock    =>");
+//            filterOutdate(uid, rb1, dataModel);
+//            System.out.print("itemLoglikelihood=>");
+//            filterOutdate(uid, rb2, dataModel);
+//        }
     }
 
     public static void filterOutdate(long uid, RecommenderBuilder recommenderBuilder, DataModel dataModel) throws TasteException, IOException {
@@ -62,12 +62,10 @@ public class RecommenderFilterOutdateResult {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-
         }
         br.close();
         return jobids;
     }
-
 }
 
 class JobRescorer implements IDRescorer {

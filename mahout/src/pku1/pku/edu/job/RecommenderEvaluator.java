@@ -62,6 +62,50 @@ public class RecommenderEvaluator {
         }
     }
     
+    
+    public static Map<String, RecommenderBuilder> getBest() throws TasteException, IOException{
+    	Map<String, RecommenderBuilder> map=new HashMap<String, RecommenderBuilder>();
+    	double res=0;
+    	String algr=null;
+        String file = "datafile/job/pv.csv";
+        RecommenderBuilder resBuilder = null;
+        DataModel dataModel = RecommendFactory.buildDataModelNoPref(file);
+        Map<String, Map<RecommenderBuilder, IRStatistics>>maps=new HashMap<String, Map<RecommenderBuilder,IRStatistics>>();
+        Map<RecommenderBuilder, IRStatistics> remap=new HashMap<RecommenderBuilder, IRStatistics>();
+        maps.put("userLoglikelihood", userLoglikelihood(dataModel).get("userLoglikelihood"));
+        maps.put("userCityBlock", userCityBlock(dataModel).get("userCityBlock"));
+        maps.put("userTanimoto", userTanimoto(dataModel).get("userTanimoto"));
+        maps.put("itemLoglikelihood", itemLoglikelihood(dataModel).get("itemLoglikelihood"));
+        maps.put("itemCityBlock", itemCityBlock(dataModel).get("itemCityBlock"));
+        maps.put("itemTanimoto", itemTanimoto(dataModel).get("itemTanimoto"));
+        maps.put("slopeOne", slopeOne(dataModel).get("slopeOne"));
+
+        for (String string : maps.keySet()) {
+			remap=maps.get(string);
+			for (RecommenderBuilder recommenderBuilder : remap.keySet()) {
+				IRStatistics stas=remap.get(recommenderBuilder);
+//				System.out.println(string+"======="+stas.getF1Measure());
+				if(stas.getF1Measure()>res){
+					algr=string;
+					res=stas.getF1Measure();
+					resBuilder=recommenderBuilder;
+				}
+			}
+		}
+//        System.out.println("bestModel is:"+algr+"F1:"+res);
+        map.put(algr, resBuilder);
+        
+//        LongPrimitiveIterator iter = dataModel.getUserIDs();
+//        while (iter.hasNext()) {
+//            long uid = iter.nextLong();
+//            System.out.print(algr);
+//            RecommenderResult.result(uid, resBuilder, dataModel);
+//        }
+        return map;
+    }
+    
+    
+    
     public static Map<String,Map<RecommenderBuilder, IRStatistics>> userLoglikelihood(DataModel dataModel) throws TasteException, IOException {
         System.out.println("userLoglikelihood");
         Map<String, Map<RecommenderBuilder, IRStatistics>>res=new HashMap<String,Map<RecommenderBuilder, IRStatistics>>();
